@@ -14,10 +14,25 @@
     this.expenseList = document.getElementById("expense-list");
     this.itemList = [];
     this.itemID = 0;
+    this.loadLocalSavings(); // load from local storage
    
    }// constructor
 
-  //submit budget method
+   loadLocalSavings() {
+
+      if (Object.keys(localStorage).length > 0) {
+         for (let i = 0; i < localStorage.length; i++){
+            var expense = JSON.parse(localStorage.getItem(localStorage.key(i)));
+            if (expense.title)
+               this.addExpanse(expense);
+         }             
+    
+         this.budgetAmount.textContent = localStorage.getItem("budget-amount");
+         this.expenseAmount.textContent = localStorage.getItem("expensesTotal");
+         this.balanceAmount.textContent = localStorage.getItem("balance");
+      }
+   } //loadLocalStorage
+
     submitBudgetForm() {
 
        if (this.budgetInput.value === '' || this.budgetInput.value < 0) {
@@ -33,6 +48,7 @@
        } else {
 
           this.budgetAmount.textContent = this.budgetInput.value;
+          localStorage.setItem("budget-amount",this.budgetInput.value); // get it to localStorage
           this.budgetInput.value = "";
           this.showBalance();
 
@@ -44,6 +60,7 @@
        const expense = this.totalExpense();
        const total = parseInt(this.budgetAmount.textContent) - expense;
        this.balanceAmount.textContent = total;
+       localStorage.setItem("balance", total);
        
        if (total < 0) {
           this.balance.classList.remove('showGreen', 'showBlack');
@@ -82,9 +99,11 @@
                title: expenseValue,
                amount: amount 
             }
+    
             this.itemID++;
             this.itemList.push(expense);
             this.addExpanse(expense);
+            localStorage.setItem('expense' + expense.id, JSON.stringify(expense)); // set local storage 
             this.totalExpense();
             this.showBalance();
         } //else
@@ -111,12 +130,15 @@
 }
     //total Expense
     totalExpense() {
+
        let total = 0;
        if (this.itemList.length > 0) {
           total = this.itemList.reduce((acc, curr) => acc += curr.amount,0); 
-            // console.log(total);
+          localStorage.setItem("expensesTotal", total);
        }
        this.expenseAmount.textContent = total;
+      
+       // console.log(total);
     return total;
     } //totalExpense
 
@@ -138,6 +160,7 @@
             return item.id != id; // create new list that doesn't contain selected item id
         });
         this.itemList = tempList;
+        localStorage.removeItem('expense'+id); // remove item from localStorage
         this.showBalance();
 
     }//editExpense
@@ -154,8 +177,7 @@
        });
        this.itemList = tempList;
        this.showBalance();
-
-
+       localStorage.removeItem('expense'+id); // remove item from localStorage
     }//deleteExpense
 
 } // class
