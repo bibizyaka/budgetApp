@@ -1,4 +1,4 @@
-class UI {
+ class UI {
   constructor() {
     this.budgetFeedback = document.querySelector(".budget-feedback");
     this.expenseFeedback = document.querySelector(".expense-feedback");
